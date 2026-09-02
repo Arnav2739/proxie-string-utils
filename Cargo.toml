@@ -1,0 +1,18 @@
+[package]
+name = "proxie-string-utils"
+version = "0.1.0"
+edition = "2021"
+description = "A safe Rust FFI wrapper around a C++ string utilities library"
+
+# ─────────────────────────────────────────────────────────────
+# Build dependencies — used ONLY during compilation (build.rs)
+# These do NOT ship with the final binary
+# ─────────────────────────────────────────────────────────────
+[build-dependencies]
+# cc: Compiles C/C++ source files and links them into the Rust binary
+# It auto-detects the right compiler for each platform (gcc, clang, MSVC)
+cc = "1.0"
+
+# bindgen: Reads C/C++ header files and generates Rust FFI bindings
+# It parses wrapper.h and creates extern "C" function declarations in Rust
+bindgen = "0.71"
