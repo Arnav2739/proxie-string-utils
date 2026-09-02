@@ -1,0 +1,15 @@
+Design Choices - Proxie String Utils FFI Wrapper
+
+This project implements a safe, idiomatic Rust FFI wrapper around a C++ string utility library. Bridging Rust and C++ requires deliberate architectural decisions regarding memory ownership, ABI compatibility, and error handling:
+
+1. Memory Allocation and Ownership:
+Cross-language interoperability strictly adheres to the principle that the allocator that creates memory must free it. The C++ functions (str_reverse, to_uppercase) allocate dynamic buffers using standard C malloc(). We avoid new/delete to ensure uniform C runtime allocator semantics across compilers. Rust safely converts raw C pointers into owned Rust String instances via CStr::from_ptr().to_str()?.to_owned() before immediately invoking C++'s free_string(). This copy-then-free pattern eliminates use-after-free vulnerabilities and prevents memory leaks without exposing raw pointers to consumers.
+
+2. Unsafe Confinement:
+All unsafe operations are strictly isolated inside the private ffi module and internal wrapper bodies. The public Rust API (string_length, reverse_string, vowel_count, uppercase) is 100% safe Rust, accepting standard &str references and returning standard Result types.
+
+3. Robust Error Handling:
+Rather than panicking on invalid input or allocation failures, operations return Result<T, StringUtilError>. The custom error enum encapsulates interior null bytes (NulError), invalid UTF-8 sequences (Utf8Error), and null pointer returns (out-of-memory), giving callers complete recovery control.
+
+4. Automated Build Integration:
+We utilize bindgen in build.rs to automatically parse wrapper.h at compile time and generate Rust FFI declarations into OUT_DIR. Combined with the cc crate compiling lib.cpp into a static library and cargo:rerun-if-changed triggers, the build pipeline guarantees bindings stay synchronized whenever C++ sources change.

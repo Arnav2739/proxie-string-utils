@@ -291,6 +291,51 @@ mod tests {
     use super::*;
 
     // ─────────────────────────────────────────────────────────
+    // Primary Category Tests (Explicitly matching PDF guidelines)
+    // ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_basic_functionality() {
+        assert_eq!(string_length("hello").unwrap(), 5);
+        assert_eq!(reverse_string("hello").unwrap(), "olleh");
+        assert_eq!(vowel_count("hello world").unwrap(), 3);
+        assert_eq!(uppercase("hello").unwrap(), "HELLO");
+    }
+
+    #[test]
+    fn test_edge_cases() {
+        // Single character boundary cases
+        assert_eq!(string_length("a").unwrap(), 1);
+        assert_eq!(reverse_string("a").unwrap(), "a");
+        assert_eq!(vowel_count("a").unwrap(), 1);
+        assert_eq!(vowel_count("b").unwrap(), 0);
+        assert_eq!(uppercase("a").unwrap(), "A");
+
+        // Palindromes
+        assert_eq!(reverse_string("racecar").unwrap(), "racecar");
+
+        // Numbers, symbols, and special characters
+        assert_eq!(string_length("hello!@#$%").unwrap(), 10);
+        assert_eq!(reverse_string("123-456").unwrap(), "654-321");
+        assert_eq!(vowel_count("123!@#").unwrap(), 0);
+        assert_eq!(uppercase("hello123!@#").unwrap(), "HELLO123!@#");
+
+        // Interior null byte handling (safety: returns Result::Err, never crashes)
+        assert!(matches!(string_length("hello\0world").unwrap_err(), StringUtilError::NullByte(_)));
+        assert!(matches!(reverse_string("hello\0world").unwrap_err(), StringUtilError::NullByte(_)));
+        assert!(matches!(vowel_count("hello\0world").unwrap_err(), StringUtilError::NullByte(_)));
+        assert!(matches!(uppercase("hello\0world").unwrap_err(), StringUtilError::NullByte(_)));
+    }
+
+    #[test]
+    fn test_empty_input() {
+        assert_eq!(string_length("").unwrap(), 0);
+        assert_eq!(reverse_string("").unwrap(), "");
+        assert_eq!(vowel_count("").unwrap(), 0);
+        assert_eq!(uppercase("").unwrap(), "");
+    }
+
+    // ─────────────────────────────────────────────────────────
     // str_length tests
     // ─────────────────────────────────────────────────────────
 
